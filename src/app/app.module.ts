@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import { FaceRecognitionComponent } from './components/face-recognition/face-recognition.component';
 import {MatGridListModule} from "@angular/material/grid-list";
+import {CdkMenuTrigger} from "@angular/cdk/menu";
 
 @NgModule({schemas: [
     CUSTOM_ELEMENTS_SCHEMA,
@@ -18,7 +19,8 @@ import {MatGridListModule} from "@angular/material/grid-list";
     BrowserModule,
     AppRoutingModule,
     MatSlideToggleModule,
-    MatGridListModule
+    MatGridListModule,
+    CdkMenuTrigger
   ],
   providers: [],
   bootstrap: [AppComponent]
