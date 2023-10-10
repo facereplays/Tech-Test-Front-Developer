@@ -2,16 +2,19 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
     "outDir": "./out-tsc/app",
     "types": [
       "node",
-      "@angular/localize"
-    ],
+      "@angular/localize", "offscreencanvas"
+    ]
 
   },
   "files": [
     "src/main.ts"
   ],
+
+
   "include": [
     "src/**/*.d.ts"
   ],

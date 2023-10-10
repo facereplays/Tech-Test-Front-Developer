@@ -1,0 +1,16 @@
+
+
+<mat-grid-list cols="2" rowHeight="2:1">
+  <mat-grid-tile>
+    <canvas #myCanvas width="680" height="400"></canvas>
+
+
+  </mat-grid-tile>
+  <mat-grid-tile><Video #myVideo  autoplay></Video></mat-grid-tile>
+  <mat-grid-tile>3</mat-grid-tile>
+  <mat-grid-tile>4</mat-grid-tile>
+</mat-grid-list>
+<button (click)="enableCam($event)" [innerText]="webcamRunning? 'ENABLE SEGMENTATION': 'DISABLE SEGMENTATION'" >
+
+
+</button>
