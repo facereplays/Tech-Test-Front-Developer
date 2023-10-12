@@ -8,7 +8,7 @@
 
 
   <mat-card-content>
-    <div class="relative" style="padding-top:66%">
+    <div *ngIf="hasGetUserMedia() else nomedia" class="relative" style="padding-top:66%">
 
       <Video class="w-100 absolute top-0 left-0" [style.display]="mode=='image'?'none':'none'" #myVideo autoplay></Video>
     <canvas #myCanvas class="w-100 absolute top-0 left-0" width="600" height="400"></canvas>
@@ -21,10 +21,18 @@
     <mat-spinner *ngIf="webcamRunning && !results?.landmarks" ></mat-spinner>
   </div>
     </div>
+    <ng-template #nomedia>
+
+      Sorry, No media device detected.
+
+
+    </ng-template>
   </mat-card-content>
   <mat-card-actions>
-
-    <button mat-button>SHARE</button>
+    <ng-container *ngIf="webcamRunning && results?.landmarks">
+    <button mat-button *ngIf="serving" (click)="serving=false"> STOP SERVICE</button>
+    <button mat-button *ngIf="!serving" (click)="serving=true"> RUN SERVICE</button>
+    </ng-container>
   </mat-card-actions>
 </mat-card>
 
