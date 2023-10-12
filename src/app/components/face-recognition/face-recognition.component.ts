@@ -162,6 +162,7 @@ export class FaceRecognitionComponent implements OnInit, AfterViewInit {
      * dull ing video with white
      *
      */
+    this.canvasCtx?.clearRect(0, 0, this.canvasCtx?.canvas.width, this.canvasCtx?.canvas.height);
     this.canvasCtx!.drawImage(this.video, 0, 0, this.video.videoWidth, this.video.videoHeight);
     this.canvasCtx!.fillStyle = "#ffffff99";
     this.canvasCtx!.fillRect(0, 0, this.video.videoWidth, this.video.videoHeight)

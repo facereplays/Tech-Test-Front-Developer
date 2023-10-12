@@ -1,7 +1,7 @@
 
 <mat-card class="example-card mt-4">
   <mat-card-header>
-    <div mat-card-avatar class="example-header-image"></div>
+
     <mat-card-title>Hands recognition</mat-card-title>
     <mat-card-subtitle>Mediapipe</mat-card-subtitle>
   </mat-card-header>
@@ -11,9 +11,9 @@
     <div *ngIf="hasGetUserMedia() else nomedia" class="relative" style="padding-top:66%">
 
       <Video class="w-100 absolute top-0 left-0" [style.display]="mode=='image'?'none':'none'" #myVideo autoplay></Video>
-    <canvas #myCanvas class="w-100 absolute top-0 left-0" width="600" height="400"></canvas>
+    <canvas #myCanvas class="w-full absolute top-0 left-0" width="600" height="400"></canvas>
 
-  <div *ngIf="(!webcamRunning || !results?.landmarks) && !test"  class="absolute bg-opacity-25 bg-gray-400 flex align-items-center top-0 left-0 w-100 h-100 justify-content-center">
+  <div *ngIf="(!webcamRunning || !results?.landmarks) && !test"  class="absolute bg-opacity-25 bg-gray-400 flex align-items-center top-0 left-0 w-full h-full flex-c justify-content-center">
     <button *ngIf="!webcamRunning"  class="bg-white" mat-button (click)="enableCam($event)">
       <mat-icon aria-hidden="false"  fontIcon="videocam"></mat-icon>ENABLE CAMERA
     </button>

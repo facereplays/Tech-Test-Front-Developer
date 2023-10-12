@@ -4,7 +4,7 @@
     <div class="relative flex h-16 items-center justify-between">
       <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
         <!-- Mobile menu button-->
-        <button type="button" [cdkMenuTriggerFor]="menuM"  class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
+        <button type="button" [cdkMenuTriggerFor]="menuM"  class="relative inline-flex items-center justify-center  p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
           <span class="absolute -inset-0.5"></span>
           <span class="sr-only">Open main menu</span>
           <!--
@@ -28,7 +28,7 @@
 
           <div cdkMenu  class="bg-white space-y-1 px-2 pb-3 pt-2">
 
-            <button cdkMenuItem   (click)="nav(mItem.link)" class=" block rounded-md px-3 py-2 text-base font-medium" *ngFor="let mItem of menuItems">
+            <button cdkMenuItem   (click)="nav(mItem.link)" class=" block  px-3 py-2 text-base font-medium" *ngFor="let mItem of menuItems">
               {{mItem.name}}
             </button>
             <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
@@ -44,7 +44,7 @@
         </a>
         <div class="hidden sm:ml-6 sm:block">
           <div class="flex space-x-4">
-<button   *ngFor="let mItem of menuItems" [class]="(mItem.active?'active':'').concat( ' rounded-md px-3 py-2 text-sm font-medium')" (click)="nav(mItem.link)" >
+<button   *ngFor="let mItem of menuItems" [class]="(mItem.active?'active':'').concat( '  px-3 py-2 text-sm font-medium')" (click)="nav(mItem.link)" >
               {{mItem.name}}
             </button>
        </div>
@@ -58,23 +58,26 @@
 
 </nav>
 <div class="relative">
-  <div class="px-4 mt-4 sm:px-0">
-    <ng-container *ngIf="activeLink  else home" >
-    <h2 class=" text-2xl font-semibold leading-7 text-gray-900">{{activeLink!.name}}</h2>
+  <div class="md:px-4 mt-4 sm:px-0">
+    <div class="px-2 md:px-0">    <ng-container *ngIf="activeLink  else home" >
+
+    <h2 class="text-2xl font-semibold leading-7 text-gray-900">{{activeLink!.name}}</h2>
     <p class="mt-1 max-w-2xl text-base leading-6 text-gray-500" [innerHTML]="activeLink!.description"></p>
+
+    </ng-container>
+    </div>
+    <ng-container *ngIf="activeLink  else homeC" >
     </ng-container>
 <ng-template #home>
 
   <h1 class="text-2xl font-semibold leading-7 text-gray-900">Aitaca Frontend Developer Test</h1>
   <p class="mt-1 max-w-2xl text-base leading-6 text-gray-500">
 Some examples provided for Angular built test application.
-
-
-
-
-  </p>
+</p>
+</ng-template>
+  <ng-template #homeC>
   <div class="grid grid-cols-1 lg:grid-cols-3  mt-4 gap-4">
-    <div><mat-card class="h-100 bg-emerald-100">
+    <div><mat-card class="h-full bg-emerald-100">
     <mat-card-header>
       <h2 class="text-xl font-bold">Responsive utilities</h2>
     </mat-card-header>
@@ -84,7 +87,7 @@ Angular Material
     </mat-card-content>
     </mat-card>
     </div>
-    <div><mat-card class="h-100  bg-emerald-100">
+    <div><mat-card class="h-full  bg-emerald-100">
       <mat-card-header>
         <h2 class="text-xl font-bold">Scalability</h2>
       </mat-card-header>
@@ -98,7 +101,7 @@ Angular services
       </mat-card-content>
     </mat-card>
     </div>
-    <div><mat-card class="h-100  bg-emerald-100">
+    <div><mat-card class="h-full  bg-emerald-100">
       <mat-card-header>
         <h2 class="text-xl font-bold">Unit Tests</h2>
       </mat-card-header>
@@ -112,7 +115,7 @@ Angular services
     </mat-card></div>
 
   <div>
-    <mat-card class="h-100  bg-emerald-100">
+    <mat-card class="h-full bg-emerald-100">
     <mat-card-header>
       <h2 class="text-xl font-bold">Routing</h2>
     </mat-card-header>
@@ -127,7 +130,7 @@ Angular services
     </mat-card-content>
   </mat-card>
   </div>
-    <div><mat-card class="h-100  bg-emerald-100">
+    <div><mat-card class="h-full  bg-emerald-100">
       <mat-card-header>
         <h2 class="text-xl font-bold">Forms, Validation</h2>
       </mat-card-header>
@@ -145,7 +148,7 @@ Angular services
         </code>
       </mat-card-content>
     </mat-card></div>
-    <div><mat-card class="h-100  bg-emerald-100">
+    <div><mat-card class="h-full  bg-emerald-100">
       <mat-card-header>
         <h2 class="text-xl font-bold">Mediapipe</h2>
       </mat-card-header>
@@ -177,5 +180,5 @@ Angular services
     </div>
   </div>
 
-</div>    <div class="pt-4 w-100 text-center text-sm-center absolute bottom-0 left-0">Potolitsyn Aleksandr@2023</div>
+</div>    <div class="pt-4 w-full text-center text-sm-center absolute bottom-0 left-0">Potolitsyn Aleksandr@2023</div>
 </div>

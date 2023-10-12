@@ -1,6 +1,6 @@
 <mat-card class="example-card mt-4">
   <mat-card-header>
-    <div mat-card-avatar class="example-header-image"></div>
+
     <mat-card-title>3D file loading</mat-card-title>
     <mat-card-subtitle>(Taken from author's side project to demonstrate lazy-loading)</mat-card-subtitle>
   </mat-card-header>
@@ -11,10 +11,10 @@
 
 
 
-  <div [style.display] ="loading< 100 ? 'flex' : 'none'" class="h-100 vw-100 align-items-center justify-content-center over">
-    <div  class="mat-mdc-card " style="padding:2em;height:auto;">
+  <div [style.display] ="loading< 100 ? 'flex' : 'none'" class="flex-c w-full h-full align-content-center justify-itemsent-center over">
+    <div class="bg-white"  style="padding:2em;height:200px;">
       <br>loading 3D reference file <br>
-      <ngb-progressbar type="success" [value]="loading" [striped]="true"></ngb-progressbar>
+      <div [style.width.%]="loading" class="h-2 bg-red-500 rounded" ></div>
 
     </div>
   </div>
