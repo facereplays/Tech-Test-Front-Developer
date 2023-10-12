@@ -34,6 +34,13 @@ this.filteredCountries = new Observable<string[]>();
   this.addressString.registerOnChange((a:any) =>console.log('f'+a));
 }
 
+  /***
+   * countries autofill values
+   *
+   *
+   * @param value
+   * @private
+   */
   private _filter(value: string): string[] {
     const filterValue = this._normalizeValue(value);
     return this.countries.filter(country => this._normalizeValue(country).includes(filterValue));
@@ -42,14 +49,23 @@ this.filteredCountries = new Observable<string[]>();
   private _normalizeValue(value: string): string {
     return value.toLowerCase().replace(/\s/g, '');
   }
+
+  /***
+   *
+   *
+   *
+   */
   onSubmit() {
-    // TODO: Use EventEmitter with form value
+     alert('form submitted');
     console.warn(this.profileForm.value);
   }
 
 
   ngOnInit() {
-
+    /***
+     * detecting changes in countries input to find similar
+     *
+     */
     this.filteredCountries = this.country.valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value || '')),
@@ -61,9 +77,6 @@ this.filteredCountries = new Observable<string[]>();
    * Sanitizing input from dom
    *
    *
-   *
-   *
-   * @param $event
    */
   sanitize(e: Event){
     const textAr = e.target as HTMLTextAreaElement;
@@ -72,6 +85,13 @@ this.filteredCountries = new Observable<string[]>();
     textAr.value=current.replace(/[<|>]/,'');
 
   }
+
+  /***
+   *
+   * disabling paste code
+   *
+   * @param $event
+   */
   onPaste($event: Event){
 
     $event.preventDefault();
