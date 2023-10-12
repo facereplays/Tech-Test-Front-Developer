@@ -20,7 +20,7 @@
     "useDefineForClassFields": false,
     "target": "ES2022",
     "module": "ES2022",
-    "types": ["webgl2", "offscreencanvas"],
+    "types": [ "offscreencanvas"],
     "lib": [
       "ES2022",
       "dom"

@@ -1,0 +1,78 @@
+<form  [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+
+
+
+  <div class="space-y-12">
+
+
+    <div class="border-b border-gray-900/10 pb-12 ">
+
+
+      <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+        <div class="sm:col-span-3">
+          <label for="first-name" class="block text-sm font-medium leading-6 text-gray-900">First name</label>
+          <div class="mt-2">
+            <input type="text"  formControlName="firstName" id="first-name" autocomplete="given-name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+          </div>
+        </div>
+
+        <div class="sm:col-span-3">
+          <label for="last-name" class="block text-sm font-medium leading-6 text-gray-900">Last name</label>
+          <div class="mt-2">
+            <input type="text"   formControlName="lastName"   id="last-name" autocomplete="family-name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+          </div>
+        </div>
+
+        <div class="sm:col-span-3">
+          <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email address</label>
+          <div class="mt-2">
+            <small>*Validated </small>
+            <input id="email" formControlName="email"  [class]="email.invalid ? 'border-danger border-1' : ' border-0 '" type="email" autocomplete="email" class="border block w-full rounded-md py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+
+
+          </div>
+        </div>
+        <ng-container  formGroupName="address">
+        <div class="sm:col-span-3">
+          <label  class="block text-sm font-medium leading-6 text-gray-900">Country</label>
+          <div class="mt-2">
+
+
+            <small>*Observable controlled select </small>
+              <input  placeholder="Search for a country"
+                      formControlName="country"
+                      [matAutocomplete]="auto"
+                      class="px-2 relative block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"/>
+
+
+            <mat-autocomplete #auto="matAutocomplete">
+              <mat-option *ngFor="let option of filteredCountries | async" [value]="option">
+                {{option}}
+              </mat-option>
+            </mat-autocomplete>
+          </div>
+        </div>
+
+        <div class="col-span-full">
+          <label  class="block text-sm font-medium leading-6 text-gray-900">Street address</label>
+          <div class="mt-2">
+            <small>*Sanitized html textarea </small>
+            <textarea [formControl]="addressString"  (paste)="onPaste($event)" (input)="sanitize($event)"  class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+
+            </textarea>
+          </div>
+        </div>
+
+
+        </ng-container>
+      </div>
+    </div>
+
+
+  </div>
+
+  <div class="mt-6 flex items-center justify-end gap-x-6">
+    <button type="button" class="text-sm font-semibold leading-6 text-gray-900">Cancel</button>
+    <button type="submit" [disabled]="profileForm.invalid" class="rounded-md bg-red-900 px-3 py-2 text-sm font-semibold text-white shadow-sm disabled:bg-gray-400 hover:bg-orange-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Save</button>
+  </div>
+</form>

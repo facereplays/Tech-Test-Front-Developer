@@ -1,5 +1,13 @@
 import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {ImageSegmenter, FilesetResolver, ImageSegmenterResult} from "@mediapipe/tasks-vision";
+import {
+  ImageSegmenter,
+  FilesetResolver,
+  HandLandmarker,
+  ImageSegmenterResult,
+  FaceLandmarker, HandLandmarkerResult
+} from "@mediapipe/tasks-vision";
+import {environment} from "../../../environments/environment";
+import {DrawService} from "../../services/draw.service";
 
 @Component({
   selector: 'app-face-recognition',
@@ -14,43 +22,52 @@ export class FaceRecognitionComponent implements OnInit, AfterViewInit{
   imageSegmenter?: ImageSegmenter;
   labels?: string[];
   canvasClick?: HTMLCanvasElement;
-  webcamRunning: boolean = false;
+  webcamRunning: boolean = false
+  mode?: string;
   @ViewChild("myCanvas") myCanvas!: ElementRef;
   @ViewChild("myVideo") myVideo!: ElementRef;
 
+
+ hasGetUserMedia = ()=> !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+  handLandmarkerResult?: HandLandmarkerResult;
+  legendColors = environment.legendColors;
+  lastWebcamTime = -1;
+public results: HandLandmarkerResult | undefined;
+
+  constructor(private drawService: DrawService){
+
+
+  }
+
+
+   createHandLandmarker = async () => {
+    const vision = await FilesetResolver.forVisionTasks(
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
+    );
+
+
+
+
+ this.handLandmarker = await HandLandmarker.createFromOptions(vision, {
+      baseOptions: {
+        modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`,
+        delegate: "GPU"
+      },
+      runningMode: "VIDEO",
+      numHands: 2
+    });
+
+
+
+   // demosSection.classList.remove("invisible");
+  };
+
+
 /*
-const webcamPredictions = document.getElementById("webcamPredictions");
-const demosSection: HTMLElement = document.getElementById("demos");
-let enableWebcamButton: HTMLButtonElement;
 
 */
 
- hasGetUserMedia = ()=> !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 
- legendColors = [
-  [255, 197, 0, 255], // Vivid Yellow
-  [128, 62, 117, 255], // Strong Purple
-  [255, 104, 0, 255], // Vivid Orange
-  [166, 189, 215, 255], // Very Light Blue
-  [193, 0, 32, 255], // Vivid Red
-  [206, 162, 98, 255], // Grayish Yellow
-  [129, 112, 102, 255], // Medium Gray
-  [0, 125, 52, 255], // Vivid Green
-  [246, 118, 142, 255], // Strong Purplish Pink
-  [0, 83, 138, 255], // Strong Blue
-  [255, 112, 92, 255], // Strong Yellowish Pink
-  [83, 55, 112, 255], // Strong Violet
-  [255, 142, 0, 255], // Vivid Orange Yellow
-  [179, 40, 81, 255], // Strong Purplish Red
-  [244, 200, 0, 255], // Vivid Greenish Yellow
-  [127, 24, 13, 255], // Strong Reddish Brown
-  [147, 170, 0, 255], // Vivid Yellowish Green
-  [89, 51, 21, 255], // Deep Yellowish Brown
-  [241, 58, 19, 255], // Vivid Reddish Orange
-  [35, 44, 22, 255], // Dark Olive Green
-  [0, 161, 194, 255] // Vivid Blue
-];
-  lastWebcamTime = -1;
  createImageSegmenter = async () => {
    const audio = await FilesetResolver.forVisionTasks(
      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.2/wasm"
@@ -114,51 +131,59 @@ mask.forEach((maski,i)=>{
       return;
     }
     this.lastWebcamTime = this.video.currentTime;
+      /***
+       * filling canvas with video
+       * dull ing video with white
+       *
+       */
     this.canvasCtx!.drawImage(this.video, 0, 0, this.video.videoWidth, this.video.videoHeight);
+      this.canvasCtx!.fillStyle = "#ffffff99";
+      this.canvasCtx!.fillRect( 0, 0, this.video.videoWidth, this.video.videoHeight)
+      //this.canvasCtx!.drawRecta(this.video, 0, 0, this.video.videoWidth, this.video.videoHeight);
     // Do not segmented if imageSegmenter hasn't loaded
     if (this.imageSegmenter === undefined) {
-      return;
+      //return;
     }
 
     // if image mode is initialized, create a new segmented with video runningMode
-    if (this.runningMode === "IMAGE") {
+
       this.runningMode = "VIDEO";
-      await this.imageSegmenter.setOptions({
-        runningMode: this.runningMode
-      });
-    }
     let startTimeMs = performance.now();
     //  console.log(this.lastWebcamTime,startTimeMs,this.runningMode);
-      //Start segmenting the stream.
-    this.imageSegmenter.segmentForVideo(this.video, startTimeMs, this.callbackForVideo);
+      /***
+       *
+       * getting hands landmarks
+       *
+       */
+     this.results = this.handLandmarker?.detectForVideo(this.video, startTimeMs);
+
+      if (this.results && this.results.landmarks) {
+
+        for (const landmarks of this.results.landmarks) {
+        //  console.log(JSON.stringify(landmarks));
+          this.drawService.drawConnectors(this.canvasCtx!, landmarks, environment.HAND_CONNECTIONS, {
+            color: "#00FF00",
+            lineWidth: 5
+          },[this.video.videoWidth,this.video.videoHeight]);
+          this.drawService.drawLandmarks(this.canvasCtx, landmarks, { color: "#FF0000", lineWidth: 2 });
+        }
+        if (this.webcamRunning === true ) {
+          window.requestAnimationFrame(this.predictWebcam);
+        }
+      }
+
+      if (this.imageSegmenter) this.imageSegmenter.segmentForVideo(this.video, startTimeMs, this.callbackForVideo);
   }
 
 
+  /***
+   *
+   *
+   *
+   * imagesegmenting
+   * @param result
+   */
 
- handleClick =   async (event:any) => {
-    // Do not segmented if imageSegmenter hasn't loaded
-    if (this.imageSegmenter === undefined) {
-      return;
-    }
-    this.canvasClick = event.target.parentElement.getElementsByTagName("canvas")[0];
-   this.canvasClick!.classList.remove("removed");
-   this.canvasClick!.width = event.target.naturalWidth;
-   this.canvasClick!.height = event.target.naturalHeight;
-    const cxt =  this.canvasClick!.getContext("2d");
-    cxt!.clearRect(0, 0, this.canvasClick!.width, this.canvasClick!.height);
-    cxt!.drawImage(event.target, 0, 0, this.canvasClick!.width, this.canvasClick!.height);
-    event.target.style.opacity = 0;
-    // if VIDEO mode is initialized, set runningMode to IMAGE
-    if (this.runningMode === "VIDEO") {
-      this.runningMode = "IMAGE";
-      await this.imageSegmenter.setOptions({
-        runningMode: this.runningMode
-      });
-    }
-
-    // imageSegmenter.segment() when resolved will call the callback function.
-    this.imageSegmenter.segment(event.target, this.callback);
-  }
 
    callbackForVideo = (result: ImageSegmenterResult) => {
     let imageData = this.canvasCtx!.getImageData(
@@ -192,7 +217,7 @@ mask.forEach((maski,i)=>{
 
 enableCam =   async (event: any)=> {
     if (this.imageSegmenter === undefined) {
-      return;
+     // return;
     }
 
     if (this.webcamRunning === true) {
@@ -216,16 +241,51 @@ enableCam =   async (event: any)=> {
   private canvasCtx?: CanvasRenderingContext2D | null;
   // @ts-ignore
   private video: HTMLVideoElement;
+  private handLandmarker?: HandLandmarker;
+  private faceLandmarker?: FaceLandmarker;
 
+   createFaceLandmarker = async () =>{
+    const filesetResolver = await FilesetResolver.forVisionTasks(
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
+    );
+    this.faceLandmarker = await FaceLandmarker.createFromOptions(filesetResolver, {
+      baseOptions: {
+        modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
+        delegate: "GPU"
+      },
+      outputFaceBlendshapes: true,
+      runningMode: this.runningMode,
+      numFaces: 1
+    });
 
-
+  }
+ // createFaceLandmarker();
+  private handLandResults: HandLandmarkerResult | undefined;
+private marks: any[] = [];
+test:boolean = false;
 
    ngAfterViewInit()
    {
      this.canvasElement = this.myCanvas.nativeElement as HTMLCanvasElement;
     this.canvasCtx = this.canvasElement.getContext("2d");
-
+//this.test=true;
+     /***
+      *
+      * testing
+      *
+      */
+     if(this.test){
+     this.marks=JSON.parse('[{"x":0.4419788718223572,"y":0.9885884523391724,"z":-1.6559452831188537e-7},{"x":0.47772884368896484,"y":0.8524411916732788,"z":-0.02013668231666088},{"x":0.47463172674179077,"y":0.7098792195320129,"z":-0.030217472463846207},{"x":0.46790122985839844,"y":0.6086395382881165,"z":-0.0383816659450531},{"x":0.45867159962654114,"y":0.5593640804290771,"z":-0.04470393806695938},{"x":0.32611313462257385,"y":0.697811484336853,"z":-0.0019850439857691526},{"x":0.3783108592033386,"y":0.6746347546577454,"z":-0.021891487762331963},{"x":0.4129917323589325,"y":0.7202364206314087,"z":-0.04995590075850487},{"x":0.4171450138092041,"y":0.7597101926803589,"z":-0.07034149020910263},{"x":0.2923184931278229,"y":0.7551758289337158,"z":-0.0014537802198901772},{"x":0.3406887948513031,"y":0.7316475510597229,"z":-0.011543123982846737},{"x":0.37543851137161255,"y":0.7718098759651184,"z":-0.031710922718048096},{"x":0.3804970681667328,"y":0.8124983310699463,"z":-0.04908472299575806},{"x":0.27665817737579346,"y":0.8158678412437439,"z":-0.003018013434484601},{"x":0.30786821246147156,"y":0.7877399921417236,"z":-0.012737883254885674},{"x":0.341959148645401,"y":0.8199914693832397,"z":-0.01200360432267189},{"x":0.3522948622703552,"y":0.8536326289176941,"z":-0.012613429687917233},{"x":0.2702025771141052,"y":0.8762029409408569,"z":-0.006714301649481058},{"x":0.2892342805862427,"y":0.8445165753364563,"z":-0.010889739729464054},{"x":0.3187931776046753,"y":0.8701635599136353,"z":0.0017439138609915972},{"x":0.3319021463394165,"y":0.897994875907898,"z":0.01243297103792429}]');
 // Get DOM elements
+
+     this.drawService.drawConnectors(this.canvasCtx!, this.marks, environment.HAND_CONNECTIONS, {
+       color: "#00FF00",
+       lineWidth: 5
+     },[this.video.videoWidth,this.video.videoHeight]);
+   }    /***
+      *
+      * end testing
+      */
      this.video = this.myVideo.nativeElement as HTMLVideoElement;
    }
    ngOnInit()
@@ -236,19 +296,11 @@ enableCam =   async (event: any)=> {
 
      //demosSection.classList.remove("invisible");
 
-   this.createImageSegmenter();
+  // this.createImageSegmenter();
 
-   const imageContainers: HTMLCollectionOf<Element> = document.getElementsByClassName(
-     "segmentOnClick"
-   );
+this.createHandLandmarker();
 
-// Add click event listeners for the img elements.
-Array(imageContainers.length).fill(1).map((a,i)=>{
-     imageContainers[i]
-       .getElementsByTagName("img")[0]
-       .addEventListener("click", this.handleClick);
-   }
-   )
+
      /**
     * Demo 1: Segmented images on click and display results.
     */
