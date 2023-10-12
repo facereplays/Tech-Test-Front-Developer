@@ -31,7 +31,7 @@ sanitized:Observable<string>;
 constructor(private fb:FormBuilder) {
 this.filteredCountries = new Observable<string[]>();
   this.sanitized = new Observable<string>();
-  this.addressString.registerOnChange((a:any) =>console.log('f'+a));
+
 }
 
   private _filter(value: string): string[] {
@@ -63,13 +63,13 @@ this.filteredCountries = new Observable<string[]>();
    *
    *
    *
-   * @param $event
+   *
    */
   sanitize(e: Event){
     const textAr = e.target as HTMLTextAreaElement;
     const current= textAr.value;
 
-    textAr.value=current.replace(/<|>/,'');
+    textAr.value=current.replace(/[<|>]/,'');
 
   }
   onPaste($event: Event){

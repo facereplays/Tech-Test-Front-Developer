@@ -1,12 +1,14 @@
 import { TestBed, async } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
-
+import {MatButtonModule} from "@angular/material/button";
+import {MatMenuModule} from "@angular/material/menu";
+import {CdkMenu, CdkMenuItem,CdkMenuTrigger} from "@angular/cdk/menu";
 describe('AppComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule
+        RouterTestingModule,MatButtonModule,MatMenuModule,CdkMenu, CdkMenuItem,CdkMenuTrigger
       ],
       declarations: [
         AppComponent
@@ -26,10 +28,5 @@ describe('AppComponent', () => {
     expect(app.title).toEqual('TechTest');
   });
 
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('.content span').textContent).toContain('TechTest app is running!');
-  });
+
 });

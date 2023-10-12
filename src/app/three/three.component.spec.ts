@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ThreeComponent } from './three.component';
+import {MatCardModule} from "@angular/material/card";
+import {NgbProgressbar} from "@ng-bootstrap/ng-bootstrap";
 
 describe('ThreeComponent', () => {
   let component: ThreeComponent;
@@ -8,7 +10,7 @@ describe('ThreeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ThreeComponent ]
+      declarations: [ ThreeComponent ],imports:[MatCardModule,NgbProgressbar]
     })
     .compileComponents();
 

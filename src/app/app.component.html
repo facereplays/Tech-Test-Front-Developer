@@ -1,4 +1,5 @@
-<nav class="bg-white">
+<div class="relative h-100">
+  <nav class="bg-white">
   <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
     <div class="relative flex h-16 items-center justify-between">
       <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
@@ -56,7 +57,7 @@
   <!-- Mobile menu, show/hide based on menu state. -->
 
 </nav>
-<div>
+<div class="relative">
   <div class="px-4 mt-4 sm:px-0">
     <ng-container *ngIf="activeLink  else home" >
     <h2 class=" text-2xl font-semibold leading-7 text-gray-900">{{activeLink!.name}}</h2>
@@ -72,9 +73,109 @@ Some examples provided for Angular built test application.
 
 
   </p>
+  <div class="grid grid-cols-1 lg:grid-cols-3  mt-4 gap-4">
+    <div><mat-card class="h-100 bg-emerald-100">
+    <mat-card-header>
+      <h2 class="text-xl font-bold">Responsive utilities</h2>
+    </mat-card-header>
+    <mat-card-content>
+    Tailwind CSS<br>
+Angular Material
+    </mat-card-content>
+    </mat-card>
+    </div>
+    <div><mat-card class="h-100  bg-emerald-100">
+      <mat-card-header>
+        <h2 class="text-xl font-bold">Scalability</h2>
+      </mat-card-header>
+      <mat-card-content>
+       Angular components<br>
+Angular services
+        <br>
+        <code>
+          constructor(private drawService: DrawService)&lbrace;...&rbrace;
+        </code>
+      </mat-card-content>
+    </mat-card>
+    </div>
+    <div><mat-card class="h-100  bg-emerald-100">
+      <mat-card-header>
+        <h2 class="text-xl font-bold">Unit Tests</h2>
+      </mat-card-header>
+      <mat-card-content>
+        Angular Karma tests
+        <br>
+        <code>
+        run : ng test
+        </code>
+      </mat-card-content>
+    </mat-card></div>
 
+  <div>
+    <mat-card class="h-100  bg-emerald-100">
+    <mat-card-header>
+      <h2 class="text-xl font-bold">Routing</h2>
+    </mat-card-header>
+    <mat-card-content>
+      ActiveRouter listeners
+
+      <br>
+      <code>
+        router.events.pipe(filter(event => event instanceof NavigationStart)).subscribe((u:NavigationStart) => &lbrace;...
+
+      </code>
+    </mat-card-content>
+  </mat-card>
+  </div>
+    <div><mat-card class="h-100  bg-emerald-100">
+      <mat-card-header>
+        <h2 class="text-xl font-bold">Forms, Validation</h2>
+      </mat-card-header>
+      <mat-card-content>
+        Angular Validators (email, custom validator for avoiding code injection in textarea
+        <br>
+        <code>
+          sanitize(e: Event)&lbrace;
+          const textAr = e.target as HTMLTextAreaElement;
+          const current= textAr.value;
+
+          textAr.value=current.replace(/<|>/,'');
+
+          &rbrace;
+        </code>
+      </mat-card-content>
+    </mat-card></div>
+    <div><mat-card class="h-100  bg-emerald-100">
+      <mat-card-header>
+        <h2 class="text-xl font-bold">Mediapipe</h2>
+      </mat-card-header>
+      <mat-card-content>
+     Realized access to Handlandmarks recognition service, custom personal hand representation realized
+        <br>
+        <code>
+          c.map((o,i)=>&lbrace;
+          const start=marks[o[0]];
+          a.fillText(o[0].toString(), start.x*video[0]+5,start.y*video[1]-5);
+
+          const end=marks[o[1]];
+          a.fillText(o[1].toString(), end.x*video[0]+15,end.y*video[1]-5);
+
+          i==0 || i>4 ?  a.beginPath() : null;
+         i==0 || i>4 ? a.moveTo(start.x*video[0],start.y*video[1]) : null;
+          a.lineTo(end.x*video[0],end.y*video[1]);
+          i>4 ? a.stroke(): null;
+          i==4 ? a.fill(): null;
+          });
+        </code>
+      </mat-card-content>
+    </mat-card></div>
+  </div>
 </ng-template>
     <div class="md:px-8 sm:px-0 relative">
 <router-outlet></router-outlet>
+
     </div>
+  </div>
+
+</div>    <div class="pt-4 w-100 text-center text-sm-center absolute bottom-0 left-0">Potolitsyn Aleksandr@2023</div>
 </div>

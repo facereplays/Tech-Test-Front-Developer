@@ -7,10 +7,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="https://aitaca.io/wp-content/uploads/2021/10/cropped-Favicon-192x192.png" sizes="192x192" />
   <link rel="apple-touch-icon" href="https://aitaca.io/wp-content/uploads/2021/10/cropped-Favicon-180x180.png" />
-  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
 </head>
 <body>
-  <app-root></app-root>
+  <app-root>
+    <!--initial loader-->
+    <style>
+      .container{width:100vw;height:100vh;display:flex;align-items: center;justify-content: center}
+    .loader {
+      width: 48px;
+      height: 48px;
+      border: 5px solid #ff6666;
+      border-bottom-color: transparent;
+      border-radius: 50%;
+      display: inline-block;
+      box-sizing: border-box;
+      animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    </style>
+    <div class="container">
+<span class="loader"></span>
+    </div>
+    </app-root>
 </body>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </html>

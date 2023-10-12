@@ -1,3 +1,5 @@
+<mat-card class="p-8 m-2">
+
 <form  [formGroup]="profileForm" (ngSubmit)="onSubmit()">
 
 
@@ -76,3 +78,4 @@
     <button type="submit" [disabled]="profileForm.invalid" class="rounded-md bg-red-900 px-3 py-2 text-sm font-semibold text-white shadow-sm disabled:bg-gray-400 hover:bg-orange-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Save</button>
   </div>
 </form>
+</mat-card>

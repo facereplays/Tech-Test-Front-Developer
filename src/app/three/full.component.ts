@@ -7,7 +7,7 @@ import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {AfterViewInit, Component, OnInit} from "@angular/core";
 import {ShadersService} from "./shaders.service";
-import CameraControls from "camera-controls";
+
 // @ts-ignore
 import diffuseFragment from "./shaders/diffuseFragment.glsl"
 
@@ -36,7 +36,6 @@ export class FullComponent implements OnInit, AfterViewInit {
   private specularImage!: THREE.WebGLRenderTarget;
   private specularMaterial!: THREE.ShaderMaterial;
   private addSpecularPass!: ShaderPass;
-  private addDiffusePass!: ShaderPass;
   private verticalBlurPass!: ShaderPass;
   private edgeModPass!: ShaderPass;
   private stepPass!: ShaderPass;
@@ -45,14 +44,14 @@ export class FullComponent implements OnInit, AfterViewInit {
   private paperPass!: ShaderPass;
   private controls!: OrbitControls;
   private testPass!: ShaderPass;
-  private cube1!: THREE.Mesh;
+
   private materialD!: THREE.MeshBasicMaterial;
   private addDiffuseShader!: any;
 constructor(private shaderService:ShadersService) {
 }
     ngOnInit(): void {
       this.clock = new THREE.Clock();
-  const a=0;
+
         //throw new Error('Method not implemented.');
     }
     ngAfterViewInit(): void {
@@ -103,7 +102,6 @@ this.mouseControls();
 // generate intensity image
 const parameters = { type:THREE.HalfFloatType, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat, stencilBuffer: false }
 this.intensityImage = new THREE.WebGLRenderTarget( width, height, parameters )
-let tempImage = new THREE.WebGLRenderTarget( width, height, parameters )
 this.diffuseImage = new THREE.WebGLRenderTarget( width, height, parameters )
       this.specularImage = new THREE.WebGLRenderTarget( width, height, parameters )
       this.specularImage.texture.generateMipmaps = false;
@@ -349,8 +347,6 @@ this.copyPass = new ShaderPass(CopyShader)
 this.composer = new EffectComposer(this.renderer)
 this.composer.setSize(canvas.width, canvas.height)
 
-const reset = this.composer.renderTarget1.clone()
-const reset1 = this.composer.renderTarget1.clone()
 
 
 this.startRenderingLoop();
@@ -394,13 +390,8 @@ this.startRenderingLoop();
       component.cube.rotation.y += 0.01;
       const diffusePasses = [component.renderPass, component.copyPass]
       const specularPasses = [component.renderPass, component.copyPass]
-      const intensityPasses_ = [component.renderPass, component.addSpecularPass, component.addDiffusePass,
-        component.horizontalBlurPass,
-         component.copyPass]
 
-      const additionalPasses = [component.stepPass, component.paperPass]
 
-     //
 
            component.composer.passes = diffusePasses
 
