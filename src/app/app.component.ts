@@ -12,14 +12,23 @@ import {MenuItem} from "./classes/menu-item";
 })
 
 export class AppComponent {
+
+  // ,new MenuItem('MediaPipeFace','face', 'Examples of Mediapipe usage')
   title = 'TechTest';
   activeLink:MenuItem | undefined;
 url$: Subject<string>;
+  /***
+   *
+   * menu content bound to routing
+   *
+   *
+   */
   menuItems: MenuItem[] =[
     new MenuItem('Form','form', 'Example of form with validation'),
-    new MenuItem('List','list', 'Example of big data download with lazy loading.<br>' +
+    new MenuItem('ThreeJs Scene','threejs', 'Example of big data download with lazy loading.<br>' +
       '(objective: Ensure that your page is optimized for speed and scalability)')
-    ,new MenuItem('MediaPipe','video', 'Examples of Mediapipe usage')];
+
+    ,new MenuItem('MediaPipeHand','video', 'Examples of Mediapipe usage')];
 constructor( private route: ActivatedRoute,
              private router: Router ) {
   this.url$=new Subject<string>();

@@ -4,6 +4,7 @@ import { NgModule,CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FaceRecognitionComponent } from './components/face-recognition/face-recognition.component';
+import {HandRecognitionComponent } from './components/hand-recognition/hand-recognition.component';
 import {MatGridListModule} from "@angular/material/grid-list";
 import {CdkMenu, CdkMenuItem,CdkMenuTrigger} from "@angular/cdk/menu";
 import { FormComponent } from './components/form/form.component';
@@ -21,7 +22,7 @@ import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
   ],
   declarations: [
     AppComponent,
-    FaceRecognitionComponent,
+    FaceRecognitionComponent,  HandRecognitionComponent,
     FormComponent
   ],
   imports: [

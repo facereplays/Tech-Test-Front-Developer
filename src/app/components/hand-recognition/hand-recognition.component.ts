@@ -3,18 +3,17 @@ import {
   ImageSegmenter,
   FilesetResolver,
 
-
-  FaceLandmarker, FaceLandmarkerResult
+  ImageSegmenterResult,
+  HandLandmarker, HandLandmarkerResult
 } from "@mediapipe/tasks-vision";
 import {environment} from "../../../environments/environment";
 import {DrawService} from "../../services/draw.service";
 
 @Component({
-  selector: 'app-face-recognition',
-  templateUrl: './face-recognition.component.html',
-  styleUrls: ['./face-recognition.component.css']
+  selector: 'app-hand-recognition',
+  templateUrl: './hand-recognition.component.html'
 })
-export class FaceRecognitionComponent implements OnInit, AfterViewInit {
+export class HandRecognitionComponent implements OnInit, AfterViewInit {
 
   runningMode: "IMAGE" | "VIDEO" = "IMAGE";
 
@@ -25,18 +24,18 @@ export class FaceRecognitionComponent implements OnInit, AfterViewInit {
   mode?: string;
   @ViewChild("myCanvas") myCanvas!: ElementRef;
   @ViewChild("myVideo") myVideo!: ElementRef;
-
+  handLandmarkerResult?: HandLandmarkerResult;
   legendColors = environment.legendColors;
   lastWebcamTime = -1;
-  public results: FaceLandmarkerResult | undefined;
+  public results: HandLandmarkerResult | undefined;
   test: boolean = false;
   public serving: boolean;
   private canvasElement?: HTMLCanvasElement;
   private canvasCtx?: CanvasRenderingContext2D | null;
   // @ts-ignore
   private video: HTMLVideoElement;
+  private handLandmarker?: HandLandmarker;
 
-  private faceLandmarker?: FaceLandmarker;
 
 
   /***
@@ -51,7 +50,7 @@ export class FaceRecognitionComponent implements OnInit, AfterViewInit {
    * hand servuce results
    * @private
    */
-  private faceLandResults: FaceLandmarkerResult | undefined;
+  private handLandResults: HandLandmarkerResult | undefined;
   private marks: any[] = [];
 
   constructor(private drawService: DrawService) {
@@ -66,13 +65,64 @@ export class FaceRecognitionComponent implements OnInit, AfterViewInit {
   hasGetUserMedia = () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 
 
+
   /*
   fpor image segmenter case
 
 
   */
+  createImageSegmenter = async () => {
+    const audio = await FilesetResolver.forVisionTasks(
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.2/wasm"
+    );
+    this.imageSegmenter = await ImageSegmenter.createFromOptions(audio, {
+      baseOptions: {
+        modelAssetPath:
+          "https://storage.googleapis.com/mediapipe-models/image_segmenter/deeplab_v3/float32/1/deeplab_v3.tflite",
+        delegate: "GPU"
+      },
+      runningMode: this.runningMode,
+      outputCategoryMask: true,
+      outputConfidenceMasks: false
+    });
+    this.labels = this.imageSegmenter.getLabels();
+  }
+
+  callback = (result: ImageSegmenterResult) => {
+    const cxt = this.canvasClick!.getContext("2d");
+    if (cxt && this.canvasClick) {
 
 
+      // @ts-ignore
+      const {width, height} = result.categoryMask;
+      let imageData = cxt.getImageData(0, 0, width, height).data;
+      this.canvasClick.width = width;
+      this.canvasClick.height = height;
+      let category: String = "";
+      const mask = result.categoryMask!.getAsUint8Array();
+      mask.forEach((maski, i) => {
+        if (maski > 0) {
+          category = this.labels![maski];
+        }
+        const legendColor = this.legendColors[maski % this.legendColors.length]
+
+        imageData[i * 4] = (legendColor[0] + imageData[i * 4]) / 2;
+        imageData[i * 4 + 1] = (legendColor[1] + imageData[i * 4 + 1]) / 2;
+        imageData[i * 4 + 2] = (legendColor[2] + imageData[i * 4 + 2]) / 2;
+        imageData[i * 4 + 3] = (legendColor[3] + imageData[i * 4 + 3]) / 2;
+      })
+      const uint8Array = new Uint8ClampedArray(imageData.buffer);
+      const dataNew = new ImageData(uint8Array, width, height);
+      cxt.putImageData(dataNew, 0, 0);
+      /* const p: HTMLElement = event.target.parentNode.getElementsByClassName(
+         "classification"
+       )[0];
+       p.classList.remove("removed");
+       p.innerText = "Category: " + category;
+
+       */
+    }
+  }
 
   /***
    * frame by frame service for reading
@@ -100,6 +150,9 @@ export class FaceRecognitionComponent implements OnInit, AfterViewInit {
     this.canvasCtx!.fillRect(0, 0, this.video.videoWidth, this.video.videoHeight)
     //this.canvasCtx!.drawRecta(this.video, 0, 0, this.video.videoWidth, this.video.videoHeight);
     // Do not segmented if imageSegmenter hasn't loaded
+    if (this.imageSegmenter === undefined) {
+      //return;
+    }
 
     // if image mode is initialized, create a new segmented with video runningMode
 
@@ -111,11 +164,11 @@ export class FaceRecognitionComponent implements OnInit, AfterViewInit {
      * getting hands landmarks
      *
      */
-    this.results = this.faceLandmarker?.detectForVideo(this.video, startTimeMs);
-console.log(this.results );return;
-    if (this.results && this.results!.faceLandmarks) {
+    this.results = this.handLandmarker?.detectForVideo(this.video, startTimeMs);
 
-      for (const landmarks of this.results!.faceLandmarks) {
+    if (this.results && this.results.landmarks) {
+
+      for (const landmarks of this.results.landmarks) {
         //  console.log(JSON.stringify(landmarks));
         /***
          *
@@ -133,8 +186,45 @@ console.log(this.results );return;
       }
     }
 
+    if (this.imageSegmenter) this.imageSegmenter.segmentForVideo(this.video, startTimeMs, this.callbackForVideo);
   }
 
+  /***
+   *
+   *
+   *
+   * imagfe segmenter case
+   * @param result
+   */
+  callbackForVideo = (result: ImageSegmenterResult) => {
+    let imageData = this.canvasCtx!.getImageData(
+      0,
+      0,
+      this.video.videoWidth,
+      this.video.videoHeight
+    ).data;
+    const mask: Float32Array = result.categoryMask!.getAsFloat32Array();
+    let j = 0;
+    for (let i = 0; i < mask.length; ++i) {
+      const maskVal = Math.round(mask[i] * 255.0);
+      const legendColor = this.legendColors[maskVal % this.legendColors.length];
+      imageData[j] = (legendColor[0] + imageData[j]) / 2;
+      imageData[j + 1] = (legendColor[1] + imageData[j + 1]) / 2;
+      imageData[j + 2] = (legendColor[2] + imageData[j + 2]) / 2;
+      imageData[j + 3] = (legendColor[3] + imageData[j + 3]) / 2;
+      j += 4;
+    }
+    const uint8Array = new Uint8ClampedArray(imageData.buffer);
+    const dataNew = new ImageData(
+      uint8Array,
+      this.video.videoWidth,
+      this.video.videoHeight
+    );
+    this.canvasCtx!.putImageData(dataNew, 0, 0);
+    if (this.webcamRunning === true) {
+      window.requestAnimationFrame(this.predictWebcam);
+    }
+  }
 
   enableCam = async (event: any) => {
     if (this.imageSegmenter === undefined) {
@@ -158,22 +248,25 @@ console.log(this.results );return;
     this.video.srcObject = await navigator.mediaDevices.getUserMedia(constraints);
     this.video.addEventListener("loadeddata", this.predictWebcam);
   }
-
-  createFaceLandmarker = async () => {
-    const filesetResolver = await FilesetResolver.forVisionTasks(
-      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
+  createHandLandmarker = async () => {
+    const vision = await FilesetResolver.forVisionTasks(
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
     );
-    this.faceLandmarker = await FaceLandmarker.createFromOptions(filesetResolver, {
+
+
+    this.handLandmarker = await HandLandmarker.createFromOptions(vision, {
       baseOptions: {
-        modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
+        modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`,
         delegate: "GPU"
       },
-      outputFaceBlendshapes: true,
       runningMode: "VIDEO",
-      numFaces: 1
+      numHands: 2
     });
 
-  }
+
+    // demosSection.classList.remove("invisible");
+  };
+
 
   ngAfterViewInit() {
     this.canvasElement = this.myCanvas.nativeElement as HTMLCanvasElement;
@@ -200,7 +293,7 @@ console.log(this.results );return;
     this.video = this.myVideo.nativeElement as HTMLVideoElement;
 
 
-    this.createFaceLandmarker();
+    this.createHandLandmarker();
   }
 
   ngOnInit() {

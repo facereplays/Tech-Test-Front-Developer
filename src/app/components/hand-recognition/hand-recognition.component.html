@@ -13,12 +13,12 @@
       <Video class="w-100 absolute top-0 left-0" [style.display]="mode=='image'?'none':'none'" #myVideo autoplay></Video>
     <canvas #myCanvas class="w-full absolute top-0 left-0" width="600" height="400"></canvas>
 
-  <div *ngIf="(!webcamRunning || !results?.faceLandmarks) && !test"  class="absolute bg-opacity-25 bg-gray-400 flex align-items-center top-0 left-0 w-full h-full flex-c justify-content-center">
+  <div *ngIf="(!webcamRunning || !results?.landmarks) && !test"  class="absolute bg-opacity-25 bg-gray-400 flex align-items-center top-0 left-0 w-full h-full flex-c justify-content-center">
     <button *ngIf="!webcamRunning"  class="bg-white" mat-button (click)="enableCam($event)">
       <mat-icon aria-hidden="false"  fontIcon="videocam"></mat-icon>ENABLE CAMERA
     </button>
 
-    <mat-spinner *ngIf="webcamRunning && !results?.faceLandmarks" ></mat-spinner>
+    <mat-spinner *ngIf="webcamRunning && !results?.landmarks" ></mat-spinner>
   </div>
     </div>
     <ng-template #nomedia>
@@ -29,7 +29,7 @@
     </ng-template>
   </mat-card-content>
   <mat-card-actions>
-    <ng-container *ngIf="webcamRunning && results?.faceLandmarks">
+    <ng-container *ngIf="webcamRunning && results?.landmarks">
     <button mat-button *ngIf="serving" (click)="serving=false"> STOP SERVICE</button>
     <button mat-button *ngIf="!serving" (click)="serving=true"> RUN SERVICE</button>
     </ng-container>
