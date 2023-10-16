@@ -413,8 +413,7 @@ let mat;
   //    const gridHelper = new THREE.GridHelper( 10, 20, 0x888888, 0x444444 );
    //  this.scene.add( gridHelper );
      object.add(light);
-     const helper = new THREE.DirectionalLightHelper( light, 150, '#FF0000' );
-      this.scene.add( helper );
+
       const light1 = new THREE.DirectionalLight( 0xaaaaFF, 0.2 );
       //  light.position.set( this.camera.position.x+50, this.camera.position.y+60, this.camera.position.z );
       //Vector3 {x: 187.92775246216416, y: -33.545392643659326, z: -260.8790265370182}

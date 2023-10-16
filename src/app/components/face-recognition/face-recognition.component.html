@@ -1,9 +1,9 @@
 
-<mat-card class="example-card mt-4">
+<mat-card class="example-card mt-4 mb-8">
   <mat-card-header>
 
-    <mat-card-title>Hands recognition</mat-card-title>
-    <mat-card-subtitle>Mediapipe</mat-card-subtitle>
+    <mat-card-title>Face recognition component (Mediapipe)</mat-card-title>
+    <mat-card-subtitle>Purpose of service is to teach people drawing using recognized helpers lines</mat-card-subtitle>
   </mat-card-header>
 
 
@@ -14,7 +14,7 @@
     <canvas #myCanvas class="w-full absolute top-0 left-0" width="600" height="400"></canvas>
 
   <div *ngIf="(!webcamRunning || !results?.faceLandmarks) && !test"  class="absolute bg-opacity-25 bg-gray-400 flex align-items-center top-0 left-0 w-full h-full flex-c justify-content-center">
-    <button *ngIf="!webcamRunning"  class="bg-white" mat-button (click)="enableCam($event)">
+    <button *ngIf="!webcamRunning"  class="bg-white" mat-raised-button (click)="enableCam($event)">
       <mat-icon aria-hidden="false"  fontIcon="videocam"></mat-icon>ENABLE CAMERA
     </button>
 
@@ -30,8 +30,11 @@
   </mat-card-content>
   <mat-card-actions>
     <ng-container *ngIf="webcamRunning && results?.faceLandmarks">
-    <button mat-button *ngIf="serving" (click)="serving=false"> STOP SERVICE</button>
-    <button mat-button *ngIf="!serving" (click)="serving=true"> RUN SERVICE</button>
+      <div>
+    <button  color="primary" class="m-2"  mat-raised-button  *ngIf="serving" (click)="stop()"> STOP SERVICE</button>
+      <div class="mx-2" *ngIf="serving">Makes a shapshot of helpers and image, one can draw head using the helpers lines</div>
+      </div>   <button  color="primary" class="m-2"  mat-raised-button  *ngIf="!serving" (click)="serving=true"> RUN SERVICE</button>
+      <button  class="m-2"   mat-raised-button  *ngIf="!serving" (click)="draw=true"> Draw</button>
     </ng-container>
   </mat-card-actions>
 </mat-card>

@@ -4,7 +4,7 @@ import {
   FilesetResolver,
 
 
-  FaceLandmarker, FaceLandmarkerResult
+  FaceLandmarker, FaceLandmarkerResult, ImageSegmenterResult
 } from "@mediapipe/tasks-vision";
 import {environment} from "../../../environments/environment";
 import {DrawService} from "../../services/draw.service";
@@ -72,7 +72,62 @@ export class FaceRecognitionComponent implements OnInit, AfterViewInit {
 
   */
 
+segmentsFromVideo(result: ImageSegmenterResult) {
 
+
+    let imageData = this.canvasCtx?.getImageData(
+      0,
+      0,
+      this.video.videoWidth,
+      this.video.videoHeight
+    ).data;
+    const  legendColors = [
+    [255, 197, 0, 255], // Vivid Yellow
+    [128, 62, 117, 255], // Strong Purple
+    [255, 104, 0, 255], // Vivid Orange
+    [166, 189, 215, 255], // Very Light Blue
+    [193, 0, 32, 255], // Vivid Red
+    [206, 162, 98, 255], // Grayish Yellow
+    [129, 112, 102, 255], // Medium Gray
+    [0, 125, 52, 255], // Vivid Green
+    [246, 118, 142, 255], // Strong Purplish Pink
+    [0, 83, 138, 255], // Strong Blue
+    [255, 112, 92, 255], // Strong Yellowish Pink
+    [83, 55, 112, 255], // Strong Violet
+    [255, 142, 0, 255], // Vivid Orange Yellow
+    [179, 40, 81, 255], // Strong Purplish Red
+    [244, 200, 0, 255], // Vivid Greenish Yellow
+    [127, 24, 13, 255], // Strong Reddish Brown
+    [147, 170, 0, 255], // Vivid Yellowish Green
+    [89, 51, 21, 255], // Deep Yellowish Brown
+    [241, 58, 19, 255], // Vivid Reddish Orange
+    [35, 44, 22, 255], // Dark Olive Green
+    [0, 161, 194, 255] // Vivid Blue
+  ];
+    const mask: Float32Array | undefined = result.categoryMask?.getAsFloat32Array();
+   if(imageData && mask) {
+
+      let j = 0;
+      for (let i = 0; i < mask.length; ++i) {
+        const maskVal = Math.round(mask[i] * 255.0);
+        const legendColor = legendColors[maskVal % legendColors.length];
+        imageData[j] = (legendColor[0] + imageData[j]) / 2;
+        imageData[j + 1] = (legendColor[1] + imageData[j + 1]) / 2;
+        imageData[j + 2] = (legendColor[2] + imageData[j + 2]) / 2;
+        imageData[j + 3] = (legendColor[3] + imageData[j + 3]) / 2;
+        j += 4;
+      }
+      const uint8Array = new Uint8ClampedArray(imageData.buffer);
+      const dataNew = new ImageData(
+        uint8Array,
+        this.video.videoWidth,
+        this.video.videoHeight
+      );
+      this.canvasCtx?.putImageData(dataNew, 0, 0);
+
+    }
+
+}
 
   /***
    * frame by frame service for reading
@@ -105,29 +160,36 @@ export class FaceRecognitionComponent implements OnInit, AfterViewInit {
 
     this.runningMode = "VIDEO";
     let startTimeMs = performance.now();
-    //  console.log(this.lastWebcamTime,startTimeMs,this.runningMode);
     /***
      *
-     * getting hands landmarks
+     * get image segments
+     *  this.imageSegmenter?.segmentForVideo(this.video, startTimeMs, this.segmentsFromVideo);
+     */
+
+    /***
+     *
+     * getting face landmarks
      *
      */
-    this.results = this.faceLandmarker?.detectForVideo(this.video, startTimeMs);
-console.log(this.results );return;
+   this.results = this.faceLandmarker?.detectForVideo(this.video, startTimeMs);
+// @ts-ignore
+    //console.log(this.results.facialTransformationMatrixes);
     if (this.results && this.results!.faceLandmarks) {
 
-      for (const landmarks of this.results!.faceLandmarks) {
+
         //  console.log(JSON.stringify(landmarks));
         /***
          *
          * sending canvas and handmarks to service to draw
          *
          */
-        this.drawService.drawConnectors(this.canvasCtx!, landmarks, environment.HAND_CONNECTIONS, {
+        if( this.results!.faceLandmarks.length>0) {
+        this.drawService.drawFConnectors(this.canvasCtx!, this.results!, environment.HAND_CONNECTIONS, {
           color: "#00FF00",
           lineWidth: 5
         }, [this.video.videoWidth, this.video.videoHeight]);
+    }
 
-      }
       if (this.webcamRunning === true) {
         window.requestAnimationFrame(this.predictWebcam);
       }
@@ -174,10 +236,42 @@ console.log(this.results );return;
     });
 
   }
+  createImageSegmenter = async () => {
+    const filesetResolver = await FilesetResolver.forVisionTasks(
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
+    );
+    this.imageSegmenter = await ImageSegmenter.createFromOptions(filesetResolver, {
+    baseOptions: {
+      modelAssetPath:
+        "https://storage.googleapis.com/mediapipe-models/image_segmenter/deeplab_v3/float32/1/deeplab_v3.tflite",
+      delegate: "GPU"
+    },
+    runningMode: "VIDEO",
+    outputCategoryMask: true,
+    outputConfidenceMasks: false
+  });
+
+  }
+  draw: boolean = false;
 
   ngAfterViewInit() {
     this.canvasElement = this.myCanvas.nativeElement as HTMLCanvasElement;
     this.canvasCtx = this.canvasElement.getContext("2d");
+    const canvasO= new OffscreenCanvas(400,400);
+    const ctx=canvasO.getContext('2d');
+    const gradient = ctx!.createRadialGradient(110, 90, 30, 100, 100, 70);
+
+// Add three color stops
+    gradient.addColorStop(0, "pink");
+    gradient.addColorStop(0.9, "white");
+    gradient.addColorStop(1, "green");
+
+// Set the fill style and draw a rectangle
+    ctx!.fillStyle = gradient;
+    ctx!.fillRect(20, 20, 160, 160);
+
+
+    this.video = this.myVideo.nativeElement as HTMLVideoElement;
 //this.test=true;
     /***
      *
@@ -185,67 +279,37 @@ console.log(this.results );return;
      *
      */
     if (this.test) {
-      this.marks = JSON.parse('[{"x":0.4419788718223572,"y":0.9885884523391724,"z":-1.6559452831188537e-7},{"x":0.47772884368896484,"y":0.8524411916732788,"z":-0.02013668231666088},{"x":0.47463172674179077,"y":0.7098792195320129,"z":-0.030217472463846207},{"x":0.46790122985839844,"y":0.6086395382881165,"z":-0.0383816659450531},{"x":0.45867159962654114,"y":0.5593640804290771,"z":-0.04470393806695938},{"x":0.32611313462257385,"y":0.697811484336853,"z":-0.0019850439857691526},{"x":0.3783108592033386,"y":0.6746347546577454,"z":-0.021891487762331963},{"x":0.4129917323589325,"y":0.7202364206314087,"z":-0.04995590075850487},{"x":0.4171450138092041,"y":0.7597101926803589,"z":-0.07034149020910263},{"x":0.2923184931278229,"y":0.7551758289337158,"z":-0.0014537802198901772},{"x":0.3406887948513031,"y":0.7316475510597229,"z":-0.011543123982846737},{"x":0.37543851137161255,"y":0.7718098759651184,"z":-0.031710922718048096},{"x":0.3804970681667328,"y":0.8124983310699463,"z":-0.04908472299575806},{"x":0.27665817737579346,"y":0.8158678412437439,"z":-0.003018013434484601},{"x":0.30786821246147156,"y":0.7877399921417236,"z":-0.012737883254885674},{"x":0.341959148645401,"y":0.8199914693832397,"z":-0.01200360432267189},{"x":0.3522948622703552,"y":0.8536326289176941,"z":-0.012613429687917233},{"x":0.2702025771141052,"y":0.8762029409408569,"z":-0.006714301649481058},{"x":0.2892342805862427,"y":0.8445165753364563,"z":-0.010889739729464054},{"x":0.3187931776046753,"y":0.8701635599136353,"z":0.0017439138609915972},{"x":0.3319021463394165,"y":0.897994875907898,"z":0.01243297103792429}]');
-// Get DOM elements
+      this.marks = JSON.parse(environment.test);
+// Get DOM elementsFace
 
-      this.drawService.drawConnectors(this.canvasCtx!, this.marks, environment.HAND_CONNECTIONS, {
+      this.drawService.drawFConnectors(this.canvasCtx!, this.marks, environment.FACE_LANDMARKS_TESSELATION, {
         color: "#00FF00",
-        lineWidth: 5
-      }, [this.video.videoWidth, this.video.videoHeight]);
-    }
+        lineWidth: 5,test:this.test,
+      }, [this.canvasElement.width,this.canvasElement.height]);
+    }else{
     /***
      *
      * end testing
      */
-    this.video = this.myVideo.nativeElement as HTMLVideoElement;
 
+
+
+
+    }
 
     this.createFaceLandmarker();
+   // this.createImageSegmenter();
   }
 
   ngOnInit() {
-    /*
 
-     */
-
-    //demosSection.classList.remove("invisible");
-
-    // this.createImageSegmenter();
-
-
-
-
-    /**
-     * Demo 1: Segmented images on click and display results.
-     */
-
-
-    /********************************************************************
-     // Demo 2: Continuously grab image from webcam stream and segmented it.
-     ********************************************************************/
-
-// Check if webcam access is supported.
-
-
-// Get segmentation from the webcam
-
-
-// Enable the live webcam view and start imageSegmentation.
-
-
-// If webcam supported, add event listener to button.
-    /*
-  if (this.hasGetUserMedia()) {
-    enableWebcamButton = document.getElementById(
-      "webcamButton"
-    ) as HTMLButtonElement;
-    enableWebcamButton.addEventListener("click", enableCam);
-  } else {
-    console.warn("getUserMedia() is not supported by your browser");
-  }
-*/
 
   }
 
 
+  stop() {
+    console.log(JSON.stringify(this.results));
+
+    this.serving=false;
+  }
 }

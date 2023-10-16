@@ -9,6 +9,8 @@ const routes: Routes = [{ path: 'face',   component: FaceRecognitionComponent },
   { path: 'video',   component: HandRecognitionComponent },
   { path: 'form',   component: FormComponent },
   { path: 'threejs', loadChildren: () => import('./three/three.module').then(m => m.ThreeModule) }
+  ,
+  { path: 'facepipe', loadChildren: () => import('./facepipe/facepipe.module').then(m => m.FacepipeModule) }
 ];
 
 @NgModule({

@@ -16,6 +16,7 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MatChipsModule} from "@angular/material/chips";
 import {MatIconModule} from "@angular/material/icon";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import { AmpVisibleDirective} from './services/amp-visible.directive';
 
 @NgModule({schemas: [
     CUSTOM_ELEMENTS_SCHEMA,
@@ -23,7 +24,8 @@ import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
   declarations: [
     AppComponent,
     FaceRecognitionComponent,  HandRecognitionComponent,
-    FormComponent
+    FormComponent,
+    AmpVisibleDirective
   ],
   imports: [
     BrowserModule,

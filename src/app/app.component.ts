@@ -27,7 +27,7 @@ url$: Subject<string>;
     new MenuItem('Form','form', 'Example of form with validation'),
     new MenuItem('ThreeJs Scene','threejs', 'Example of big data download with lazy loading.<br>' +
       '(objective: Ensure that your page is optimized for speed and scalability)')
-
+    ,new MenuItem('MediaPipeFace','face', 'Examples of Mediapipe usage')
     ,new MenuItem('MediaPipeHand','video', 'Examples of Mediapipe usage')];
 constructor( private route: ActivatedRoute,
              private router: Router ) {
@@ -35,6 +35,7 @@ constructor( private route: ActivatedRoute,
   // @ts-ignore
   router.events.pipe(filter(event => event instanceof NavigationStart)).subscribe((u:NavigationStart) => {
 //find active menuLink
+    console.log(u.url);
     if(u.url!='/') {
 
       this.menuItems.map(o => {
