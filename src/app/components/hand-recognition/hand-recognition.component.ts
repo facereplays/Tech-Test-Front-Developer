@@ -146,7 +146,7 @@ export class HandRecognitionComponent implements OnInit, AfterViewInit {
      */
     this.canvasCtx?.clearRect(0, 0, this.canvasCtx?.canvas.width, this.canvasCtx?.canvas.height);
     this.canvasCtx!.drawImage(this.video, 0, 0, this.video.videoWidth, this.video.videoHeight);
-    this.canvasCtx!.fillStyle = "#ffffff99";
+    this.canvasCtx!.fillStyle = "#00004499";
     this.canvasCtx!.fillRect(0, 0, this.video.videoWidth, this.video.videoHeight)
     //this.canvasCtx!.drawRecta(this.video, 0, 0, this.video.videoWidth, this.video.videoHeight);
     // Do not segmented if imageSegmenter hasn't loaded
@@ -176,7 +176,7 @@ export class HandRecognitionComponent implements OnInit, AfterViewInit {
          *
          */
         this.drawService.drawConnectors(this.canvasCtx!, landmarks, environment.HAND_CONNECTIONS, {
-          color: "#00FF00",
+          color: "#ddddff88",color0:"#ddddff00",
           lineWidth: 5
         }, [this.video.videoWidth, this.video.videoHeight]);
 

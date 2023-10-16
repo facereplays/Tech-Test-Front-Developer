@@ -152,16 +152,32 @@ const fHead=helpers.fhead;
 
     a.restore();
   }
-  drawConnectors(a: CanvasRenderingContext2D, marks: any[], c: any[], d: any, video: number[]) {
+  drawConnectors(a: CanvasRenderingContext2D, marks: any[], c: any[], config: any, video: number[]) {
 
     a.save();
-    a.strokeStyle = '#00000044';
+    a.strokeStyle = config.color;
     a.lineWidth = 10;
     a.lineCap = "round";
-    a.fillStyle = "#00000044";
+    a.fillStyle =  config.color;
     a.font = "12px Arial";
     c.map((o, i) => {
       const start = marks[o[0]];
+    const stx=  start.x * video[0];
+      const sty=  start.y * video[1];
+      const gradient = a.createRadialGradient(stx, sty, 0, stx, sty, 20);
+
+// Add three color stops
+      gradient.addColorStop(0, config.color);
+      gradient.addColorStop(1, config.color0);
+
+// Set the fill style and draw a rectangle
+     a.fillStyle = gradient;
+      i > 4 &&   a.ellipse(stx, sty, 20, 20,0,0, 2 * Math.PI);
+
+     a.fill();
+      a.fillStyle =  config.color;
+
+
       a.fillText(o[0].toString(), start.x * video[0] + 5, start.y * video[1] - 5);
       const end = marks[o[1]];
       a.fillText(o[1].toString(), end.x * video[0] + 15, end.y * video[1] - 5);
@@ -169,6 +185,8 @@ const fHead=helpers.fhead;
       i == 0 || i > 4 ? a.moveTo(start.x * video[0], start.y * video[1]) : null;
       a.lineTo(end.x * video[0], end.y * video[1]);
       i > 4 ? a.stroke() : null;
+
+
       i == 4 ? a.fill() : null;
     });
     a.restore();
