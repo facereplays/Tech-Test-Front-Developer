@@ -81,7 +81,7 @@ const fHead=helpers.fhead;
     a.save();
     */
     a.strokeStyle = "#00000044";
-    environment.LINES.forEach(l=>{
+    environment.LINES.forEach((l:any)=>{
       const start = marks[l[0]].clone();    const end =marks[l[1]].clone();
 
       start.multiply(scale).add(delta);
