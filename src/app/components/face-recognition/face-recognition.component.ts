@@ -8,6 +8,7 @@ import {
 } from "@mediapipe/tasks-vision";
 import {environment} from "../../../environments/environment";
 import {DrawService} from "../../services/draw.service";
+import {ResponsiveService} from "../../services/responsive.service";
 
 @Component({
   selector: 'app-face-recognition',
@@ -54,7 +55,7 @@ export class FaceRecognitionComponent implements OnInit, AfterViewInit {
   private faceLandResults: FaceLandmarkerResult | undefined;
   private marks: any[] = [];
 
-  constructor(private drawService: DrawService) {
+  constructor(private drawService: DrawService, public responsiveService:ResponsiveService) {
     this.serving = false;
 
   }

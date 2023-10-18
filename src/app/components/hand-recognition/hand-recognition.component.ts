@@ -8,6 +8,7 @@ import {
 } from "@mediapipe/tasks-vision";
 import {environment} from "../../../environments/environment";
 import {DrawService} from "../../services/draw.service";
+import {ResponsiveService} from "../../services/responsive.service";
 
 @Component({
   selector: 'app-hand-recognition',
@@ -53,7 +54,7 @@ export class HandRecognitionComponent implements OnInit, AfterViewInit {
   private handLandResults: HandLandmarkerResult | undefined;
   private marks: any[] = [];
 
-  constructor(private drawService: DrawService) {
+  constructor(private drawService: DrawService, public responsiveService:ResponsiveService) {
     this.serving = false;
 
   }
