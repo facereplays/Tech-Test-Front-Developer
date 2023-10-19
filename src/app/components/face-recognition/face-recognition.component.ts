@@ -26,7 +26,8 @@ export class FaceRecognitionComponent implements OnInit, AfterViewInit {
   mode?: string;
   @ViewChild("myCanvas") myCanvas!: ElementRef;
   @ViewChild("myVideo") myVideo!: ElementRef;
-
+  // @ts-ignore
+  private video: HTMLVideoElement;
   legendColors = environment.legendColors;
   lastWebcamTime = -1;
   public results: FaceLandmarkerResult | undefined;
@@ -34,8 +35,8 @@ export class FaceRecognitionComponent implements OnInit, AfterViewInit {
   public serving: boolean;
   private canvasElement?: HTMLCanvasElement;
   private canvasCtx?: CanvasRenderingContext2D | null;
-  // @ts-ignore
-  private video: HTMLVideoElement;
+
+
 
   private faceLandmarker?: FaceLandmarker;
 
@@ -53,7 +54,7 @@ export class FaceRecognitionComponent implements OnInit, AfterViewInit {
    * @private
    */
   private faceLandResults: FaceLandmarkerResult | undefined;
-  private marks: any[] = [];
+  private marks: any = {};
 
   constructor(private drawService: DrawService, public responsiveService:ResponsiveService) {
     this.serving = false;
@@ -280,7 +281,7 @@ segmentsFromVideo(result: ImageSegmenterResult) {
      *
      */
     if (this.test) {
-      this.marks = JSON.parse(environment.test);
+      this.marks = environment.test;
 // Get DOM elementsFace
 
       this.drawService.drawFConnectors(this.canvasCtx!, this.marks, environment.FACE_LANDMARKS_TESSELATION, {

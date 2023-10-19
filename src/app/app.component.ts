@@ -28,7 +28,8 @@ url$: Subject<string>;
     new MenuItem('ThreeJs Scene','threejs', 'Example of big data download with lazy loading.<br>' +
       '(objective: Ensure that your page is optimized for speed and scalability)')
     ,new MenuItem('MediaPipeFace','face', 'Examples of Mediapipe usage')
-    ,new MenuItem('MediaPipeHand','video', 'Examples of Mediapipe usage')];
+    ,new MenuItem('MediaPipeHand','video', 'Examples of Mediapipe usage')
+    ,new MenuItem('MediaPipeTest3D','facepipe', 'Test shaders usage')];
 constructor( private route: ActivatedRoute,
              private router: Router ) {
   this.url$=new Subject<string>();
@@ -36,6 +37,7 @@ constructor( private route: ActivatedRoute,
   router.events.pipe(filter(event => event instanceof NavigationStart)).subscribe((u:NavigationStart) => {
 //find active menuLink
     console.log(u.url);
+    this.url$.next(u.url);
     if(u.url!='/') {
 
       this.menuItems.map(o => {

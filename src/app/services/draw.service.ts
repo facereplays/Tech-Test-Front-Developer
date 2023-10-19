@@ -18,7 +18,10 @@ export class DrawService {
   }
   drawFConnectors(a: CanvasRenderingContext2D, marks0: any, c: any[], d: any, video: number[]) {
     const tes = environment.FACE_LANDMARKS_TESSELATION;
-    const marks:THREE.Vector3[] = marks0.faceLandmarks[0].map((u:any)=>new THREE.Vector3(u.x,u.y,0));
+    const marks:THREE.Vector3[] = marks0.faceLandmarks[0].map((u:any)=>{
+
+
+ return  new THREE.Vector3(u.x,u.y,0)});
 
 
     const scale=new THREE.Vector3(video[0],video[1],1);
