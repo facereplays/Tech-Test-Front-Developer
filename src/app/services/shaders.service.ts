@@ -120,33 +120,29 @@ export class ShadersService {
   modVertex() {
     return `
 		varying vec2 vUv;
-
+ // uniform sampler2D diffuse;
+     //uniform sampler2D face;
+varying vec4 v_position;
 		void main() {
 			vUv = uv;
-			vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
-			gl_Position = projectionMatrix * modelViewPosition;
+		v_position=modelViewMatrix * vec4(position, 1.0);
+		gl_Position =  projectionMatrix * v_position;
+			//	gl_Position =  vec4(position, 1.0);
 		}
 	`
   }
 
   modFragment() {
     return `
-    uniform sampler2D prev_out;
-    uniform float k_delta;
-    uniform float k_rho;
-    uniform float k_theta;
-		uniform sampler2D paper;
-    varying vec2 vUv;
-
+    uniform sampler2D diffuse;
+      uniform sampler2D faceOut;
+	 varying vec2 vUv;
+//varying vec4 v_position;
     void main() {
-      // if (k_rho - k_delta < 0.5)
-      //   discard;
-			vec3 color = texture2D(paper, vUv).rgb;
-			vec4 init = texture2D(prev_out, vUv);
-      float alpha = min(1.0-(color.r*0.5 + color.g*0.2 + color.b*0.5),init.a);
-			gl_FragColor = init + vec4(0., 0., 0., alpha) * k_theta;
-			// gl_FragColor = texture2D(intensity, vUv);
-			 gl_FragColor.a = alpha;
+	vec4 faceI = texture2D(faceOut, vUv);
+			vec4 color = texture2D(diffuse, vUv);
+  	//		gl_FragColor = color;
+  gl_FragColor = faceI;
     }
   `
   }

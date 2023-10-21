@@ -8,6 +8,9 @@ import {RenderPass} from "three/examples/jsm/postprocessing/RenderPass.js";
 import {ShadersService} from "../../services/shaders.service";
 import {ShaderPass} from "three/examples/jsm/postprocessing/ShaderPass.js";
 import {CopyShader} from "three/examples/jsm/shaders/CopyShader.js";
+import {ResponsiveService} from "../../services/responsive.service";
+import {MediapipeService} from "../../services/mediapipe.service";
+import {FaceLandmarkerResult} from "@mediapipe/tasks-vision";
 
 @Component({
   selector: 'app-face',
@@ -39,9 +42,15 @@ export class FaceComponent implements OnInit{
   private ctx: CanvasRenderingContext2D | null;
   private tLoader: THREE.TextureLoader;
   private materialA?: THREE.ShaderMaterial;
-  constructor(private shaderService: ShadersService) {
+  private results: FaceLandmarkerResult | undefined;
+  private tempImage: THREE.WebGLRenderTarget;
+  constructor(private shaderService: ShadersService, private mediaService:MediapipeService) {
     this.canvas = document.createElement("canvas");
- //   document.body.appendChild(this.canvas);
+
+  this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+    this.canvas.style.width ='100vw';
+    this.canvas.style.height ='100vh';
     this.tLoader=new THREE.TextureLoader();
     this.ctx=this.canvas.getContext('2d');
     this.geometry = new THREE.BufferGeometry();
@@ -56,28 +65,30 @@ export class FaceComponent implements OnInit{
     }
     this.topTex = new THREE.WebGLRenderTarget(width, height, parameters)
     this.diffuseImage = new THREE.WebGLRenderTarget(width, height, parameters);
+    this.tempImage = new THREE.WebGLRenderTarget(width, height, parameters);
     this.addDiffuseShader = {
       uniforms: {
-        myUvs:{type: 'vec2',value:environment.faceUvs},
-        intensity: {value: this.topTex},
-        diffuse: {value: this.diffuseImage},
+        faceOut: {value:  null},
+        diffuse: {type:'sampler2D',value:this.topTex},
         color0: {type: 'vec3', value: new THREE.Color(0x008ad0)},
         color1: {type: 'vec3', value: new THREE.Color(0x090074)}
       },
       transparent: true,
-      vertexShader: this.shaderService.bpVertex(),
-      fragmentShader: this.shaderService.addDiffuseFragment()
+      vertexShader: this.shaderService.modVertex(),
+      fragmentShader: this.shaderService.modFragment()
     }
 
-    this.mixPass = new ShaderPass(this.addDiffuseShader)
+    this.mixPass = new ShaderPass(this.addDiffuseShader,'faceOut')
     this.copyPass = new ShaderPass(CopyShader)
     this.copyPass.renderToScreen = false;
   }
 redrawFace(delta: number | undefined){
 
-   this.timer++;
+const co = this.video.videoWidth/this.video.videoHeight;
 
    this.ctx?.clearRect(0,0,this.canvas.width,this.canvas.height)
+  this.ctx!.drawImage(this.video, 0, 0,this.canvas.width,this.canvas.width/co);
+/*
   const gradient =
     this.ctx!.createRadialGradient(200+Math.cos(this.timer/30)*90, 200,
       30+Math.cos(this.timer/30)*25, 200, 200, 170);
@@ -90,25 +101,43 @@ redrawFace(delta: number | undefined){
 // Set the fill style and draw a rectangle
   this.ctx!.fillStyle = gradient;
   this.ctx!.fillRect(0, 0, 400, 400);
+*/
+this.composer!.reset();
+//this.renderer!.clear();
   this.imData =   this.canvas.toDataURL();
 this.tLoader.load( this.imData,(tex)=>{
-
+  this.results = this.mediaService.getFaceResults(this.video);
   tex.needsUpdate=true;
   this.topTex.texture = tex;
-  this.addDiffuseShader.uniforms['intensity'].value=this.topTex;
+  // @ts-ignore
+  this.addDiffuseShader.uniforms['diffuse'].value=this.topTex;
+  this.composer!.writeBuffer = this.diffuseImage;
+  this.composer!.passes = [this.renderPass!,this.copyPass];
+  this.composer?.render(this.timer);
+ // this.addDiffuseShader.uniforms['face'].value= this.diffuseImage;
+ /* this.composer!.passes = [this.renderPass!,this.copyPass];
 
+ //console.log( this.diffuseImage.texture.image); */
+//  this.composer!.reset();
+
+ //this.composer!.readBuffer = this.diffuseImage;
+         this.composer!.passes = [this.mixPass];
+     this.composer?.render(this.timer);
+
+ /*  */
 });
 
 
 }
 rend(){
     this.timer++;
-  if(this.materialA)
+    this.redrawFace(this.timer);
+  /*  if(this.materialA)
   {
     this.materialA!.uniforms['stime'].value=Math.sin(this.timer/100)*5;
 this.materialA!.uniforms['time'].value=Math.cos(this.timer/100)*5;
   }
-  /*this.composer!.passes = [this.renderPass!,this.copyPass];
+this.composer!.passes = [this.renderPass!,this.copyPass];
  // this.controls!.update();
 
   // @ts-ignore
@@ -119,9 +148,9 @@ this.materialA!.uniforms['time'].value=Math.cos(this.timer/100)*5;
   this.addDiffuseShader.uniforms['intensity'].value=this.topTex;
   */
 
-  this.composer!.passes = [this.mixPass!];
+//  this.composer!.passes = [this.mixPass!];
 
-  this.composer?.render(this.timer);
+
 
 
 
@@ -135,9 +164,12 @@ this.materialA!.uniforms['time'].value=Math.cos(this.timer/100)*5;
   }
   letVideo = async ()=>{
     this.video.srcObject = await navigator.mediaDevices.getUserMedia({
-      video: true
+     video: {
+      width: { min: 1024, ideal: 1280, max: 1920 },
+      height: { min: 576, ideal: 720, max: 1080 },
+    }
     });
-
+    this.mediaService.createFaceLandmarker();
     const geometry = new THREE.PlaneGeometry(window.innerWidth,window.innerHeight);
 
 const testB = environment.test.faceLandmarks[0].map(u=>new THREE.Vector3(u.x,u.y,u.z));
@@ -162,7 +194,7 @@ dif.map(y=>{difV.push([y.x*1000,y.y*1000,y.z*10])});
        dif:{type:'vec3',value:dif},
       myUvs:{value:environment.faceUvs},
       intensity: {value: this.topTex},
-      diffuse: {value: this.diffuseImage},
+      diffuse: {value: null},
       color0: { value: new THREE.Color(0x008ad0)},
       color1: { value: new THREE.Color(0x090074)}
     },
@@ -301,15 +333,14 @@ gl_FragColor.a = color1.a;
     this.composer = new EffectComposer(this.renderer)
     this.composer.setSize(width, height)
     this.renderPass = new RenderPass(this.scene, this.camera)
-    this.renderPass.clear = true
-    this.renderPass.clearAlpha = 0
+ // this.renderPass.renderToScreen = false;
     this.clock = new THREE.Clock();
 
     this.controls=new OrbitControls(this.camera,this.renderer.domElement);
     this.controls.update();
     this.redrawFace(0);
     //this.composer.render(delta)
-  this.renderer.render( this.scene, this.camera );
+  //this.renderer.render( this.scene, this.camera );
     let component: FaceComponent = this;
     (function render() {
       const delta = component.clock?.getDelta();
