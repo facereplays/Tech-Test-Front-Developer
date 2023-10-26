@@ -29,7 +29,7 @@ url$: Subject<string>;
       '(objective: Ensure that your page is optimized for speed and scalability)')
     ,new MenuItem('MediaPipeFace','face', 'Examples of Mediapipe usage')
     ,new MenuItem('MediaPipeHand','video', 'Examples of Mediapipe usage')
-    ,new MenuItem('MediaPipeTest3D','facepipe', 'Test shaders usage')];
+    ];
 constructor( private route: ActivatedRoute,
              private router: Router ) {
   this.url$=new Subject<string>();
